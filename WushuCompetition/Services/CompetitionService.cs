@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using WushuCompetition.Dto;
 using WushuCompetition.Models;
-using WushuCompetition.Repository;
+using WushuCompetition.Repository.Interfaces;
+using WushuCompetition.Services.Interfaces;
 
 namespace WushuCompetition.Services
 {

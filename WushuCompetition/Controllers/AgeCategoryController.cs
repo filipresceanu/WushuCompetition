@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WushuCompetition.Dto;
 using WushuCompetition.Models;
-using WushuCompetition.Services;
+using WushuCompetition.Services.Interfaces;
 
 namespace WushuCompetition.Controllers
 {
-    [Authorize]
+
     [Route("api/[controller]")]
     [ApiController]
     public class AgeCategoryController : ControllerBase
     {
         private readonly IAgeCategoryService _ageCategoryService;
-
         public AgeCategoryController(IAgeCategoryService ageCategoryService)
         {
             _ageCategoryService = ageCategoryService;
@@ -23,6 +24,7 @@ namespace WushuCompetition.Controllers
         [HttpPut("create-age-category")]
         public async Task<ActionResult> CreateAgeCategory(AgeCategoryDto ageCategory)
         {
+
             try
             {
                 await _ageCategoryService.CreateAgeCategory(ageCategory);
@@ -35,9 +37,12 @@ namespace WushuCompetition.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("get-all-age-categories")]
         public async Task<ActionResult<IEnumerable<AgeCategoryDto>>> GetAgeCategories()
         {
+            
+            var user = User.Identity.Name;
             try
             {
                 var ageCategories = await _ageCategoryService.GetAgeCategories();
@@ -51,7 +56,6 @@ namespace WushuCompetition.Controllers
         }
 
         [HttpGet("get-age-categoty-id/{ageCategoryId}")]
-
         public async Task<ActionResult<AgeCategory>> GetAgeCategory(Guid ageCategoryId)
         {
             try

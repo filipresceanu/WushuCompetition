@@ -2,7 +2,7 @@
 using WushuCompetition.Dto;
 using WushuCompetition.Models;
 
-namespace WushuCompetition.Repository
+namespace WushuCompetition.Repository.Interfaces
 {
     public interface IAgeCategoryRepository
     {

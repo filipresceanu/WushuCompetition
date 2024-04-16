@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WushuCompetition.Dto;
-using WushuCompetition.Services;
+using WushuCompetition.Services.Interfaces;
 
 namespace WushuCompetition.Controllers
 {

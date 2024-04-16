@@ -1,7 +1,7 @@
 ﻿using WushuCompetition.Dto;
 using WushuCompetition.Models;
 
-namespace WushuCompetition.Services
+namespace WushuCompetition.Services.Interfaces
 {
     public interface IParticipantService
     {

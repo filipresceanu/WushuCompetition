@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.ObjectModel;
 using WushuCompetition.Dto;
-using WushuCompetition.Services;
 using WushuCompetition.Models;
+using WushuCompetition.Services.Interfaces;
 
 namespace WushuCompetition.Controllers
 {

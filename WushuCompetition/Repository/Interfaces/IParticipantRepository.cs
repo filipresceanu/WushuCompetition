@@ -1,7 +1,7 @@
 ﻿using WushuCompetition.Dto;
 using WushuCompetition.Models;
 
-namespace WushuCompetition.Repository
+namespace WushuCompetition.Repository.Interfaces
 {
     public interface IParticipantRepository
     {
@@ -11,7 +11,7 @@ namespace WushuCompetition.Repository
 
         Task<IEnumerable<Participant>> GetParticipantsDataForCompetitionId(Guid competitionId);
 
-        Task<IEnumerable<Participant>>GetParticipantsForCategoryAndCompetition(Guid categoryId, Guid competitionId);
+        Task<IEnumerable<Participant>> GetParticipantsForCategoryAndCompetition(Guid categoryId, Guid competitionId);
 
         Task<IEnumerable<Participant>> GetParticipanstShuffling();
 

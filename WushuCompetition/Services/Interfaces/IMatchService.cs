@@ -1,4 +1,4 @@
-﻿namespace WushuCompetition.Services
+﻿namespace WushuCompetition.Services.Interfaces
 {
     public interface IMatchService
     {

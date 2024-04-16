@@ -5,7 +5,7 @@ using WushuCompetition.Models;
 
 namespace WushuCompetition.Data
 {
-    public class DataContext:DbContext
+    public class DataContext: IdentityDbContext
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options) 
         {
@@ -21,9 +21,13 @@ namespace WushuCompetition.Data
 
         public DbSet<AgeCategory> AgeCategories { get; set; }
 
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+
             modelBuilder.Entity<Match>()
                 .HasOne(m => m.CompetitorFirst)
                 .WithMany(p => p.MatchesAsFirstCompetitor)

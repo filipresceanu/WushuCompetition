@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using WushuCompetition.Data;
 using WushuCompetition.Dto;
 using WushuCompetition.Models;
+using WushuCompetition.Repository.Interfaces;
 
 namespace WushuCompetition.Repository
 {

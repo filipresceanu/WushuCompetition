@@ -1,7 +1,7 @@
 ﻿using WushuCompetition.Dto;
 using WushuCompetition.Models;
 
-namespace WushuCompetition.Repository
+namespace WushuCompetition.Repository.Interfaces
 {
     public interface ICompetitionRepository
     {
@@ -9,7 +9,7 @@ namespace WushuCompetition.Repository
 
         Task DeleteCompetition(Competition competition);
 
-        Task<Competition> GetCompetitionId(Guid  competitionId);
+        Task<Competition> GetCompetitionId(Guid competitionId);
 
         Task<IEnumerable<CompetitionDto>> GetCompetitions();
 

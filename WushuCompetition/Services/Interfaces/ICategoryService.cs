@@ -1,11 +1,11 @@
 ﻿using WushuCompetition.Dto;
 using WushuCompetition.Models;
 
-namespace WushuCompetition.Services
+namespace WushuCompetition.Services.Interfaces
 {
     public interface ICategoryService
     {
-        Task CreateCategory(CategoryDto categoryDto,Guid competitionId,Guid categoryAgeId);
+        Task CreateCategory(CategoryDto categoryDto, Guid competitionId, Guid categoryAgeId);
         Task<IEnumerable<CategoryDto>> GetAllCategoriesDto();
 
         Task DeleteCategory(Guid categoryId);

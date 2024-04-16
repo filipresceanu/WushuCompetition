@@ -1,7 +1,7 @@
 ﻿using WushuCompetition.Dto;
 using WushuCompetition.Models;
 
-namespace WushuCompetition.Repository
+namespace WushuCompetition.Repository.Interfaces
 {
     public interface ICategoryRepository
     {
@@ -17,7 +17,7 @@ namespace WushuCompetition.Repository
 
         Task EditCategory(Guid categoryId);
 
-        Task<IEnumerable<Category>>GetCategorieForCompetitionId(Guid competitionId);
+        Task<IEnumerable<Category>> GetCategorieForCompetitionId(Guid competitionId);
 
         //TODO edit category
         //TODO delete category

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WushuCompetition.Services;
+using WushuCompetition.Services.Interfaces;
 
 namespace WushuCompetition.Controllers
 {

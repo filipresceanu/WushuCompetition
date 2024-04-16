@@ -1,5 +1,6 @@
 ﻿using WushuCompetition.Data;
 using WushuCompetition.Models;
+using WushuCompetition.Repository.Interfaces;
 
 namespace WushuCompetition.Repository
 {

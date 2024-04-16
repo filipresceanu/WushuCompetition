@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using WushuCompetition.Dto;
 using WushuCompetition.Models;
-using WushuCompetition.Services;
+using WushuCompetition.Services.Interfaces;
 
 namespace WushuCompetition.Controllers
 {
