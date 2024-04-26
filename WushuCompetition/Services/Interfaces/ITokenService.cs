@@ -8,5 +8,6 @@ namespace WushuCompetition.Services.Interfaces
         Task<AuthResult> CreateToken(IdentityUser user);
         Task<AuthResult> GenerateRefreshToken(TokenRequest tokenRequest);
         Task<AuthResult> VerifyToken(TokenRequest tokenRequest);
+        Task<bool> SendEmail(string body, string email);
     }
 }

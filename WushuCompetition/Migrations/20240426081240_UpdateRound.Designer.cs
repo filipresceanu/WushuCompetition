@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WushuCompetition.Data;
@@ -11,9 +12,11 @@ using WushuCompetition.Data;
 namespace WushuCompetition.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240426081240_UpdateRound")]
+    partial class UpdateRound
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -397,7 +400,7 @@ namespace WushuCompetition.Migrations
                     b.Property<Guid>("MatchId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("ParticipantWinnerId")
+                    b.Property<Guid>("ParticipantWinnerId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("PointParticipantFirst")
@@ -532,7 +535,9 @@ namespace WushuCompetition.Migrations
 
                     b.HasOne("WushuCompetition.Models.Participant", "ParticipantWinner")
                         .WithMany()
-                        .HasForeignKey("ParticipantWinnerId");
+                        .HasForeignKey("ParticipantWinnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Match");
 

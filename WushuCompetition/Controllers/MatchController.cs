@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using WushuCompetition.Repository.Interfaces;
 using WushuCompetition.Services.Interfaces;
 
 namespace WushuCompetition.Controllers
@@ -9,24 +9,26 @@ namespace WushuCompetition.Controllers
     public class MatchController : ControllerBase
     {
         private readonly IMatchService _matchService;
+        private readonly IAccountService _accountService;
 
-        public MatchController(IMatchService matchService)
+        public MatchController(IMatchService matchService, IAccountService accountService)
         {
             _matchService = matchService;
+            _accountService = accountService;
         }
 
-        [Authorize]
         [HttpPut("add-participants-matches")]
         public async Task<ActionResult>AddParticipantsInMatches(Guid competitionId)
         {
             try
             {
                 await _matchService.HandleParticipantsNumber(competitionId);
+                await _accountService.DistributeReferees();
                 return Ok("Success");
             }
             catch (Exception ex)
             {
-                return BadRequest("Someting Bad");
+                return BadRequest("Something Bad");
             }
         }
     }

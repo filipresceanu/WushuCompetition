@@ -4,6 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using RestSharp;
+using RestSharp.Authenticators;
 using WushuCompetition.Configurations;
 using WushuCompetition.Helper;
 using WushuCompetition.Models;
@@ -18,13 +20,16 @@ namespace WushuCompetition.Services
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly JwtConfig _jwtConfig;
+        private readonly EmailConfig _emailConfig;
 
         public TokenService(UserManager<IdentityUser> userManager,
-             IOptions<JwtConfig> jwtConfig, IRefreshTokenRepository refreshTokenRepository, TokenValidationParameters tokenValidationParameters)
+             IOptions<JwtConfig> jwtConfig, IRefreshTokenRepository refreshTokenRepository,
+             TokenValidationParameters tokenValidationParameters, IOptions<EmailConfig> emailConfig)
         {
             _userManager = userManager;
             _refreshTokenRepository = refreshTokenRepository;
             _tokenValidationParameters = tokenValidationParameters;
+            _emailConfig = emailConfig.Value;
             _jwtConfig = jwtConfig.Value;
         }
 
@@ -250,7 +255,31 @@ namespace WushuCompetition.Services
                     }
                 };
             }
-            
         }
+
+        public async Task<bool> SendEmail(string body, string email)
+        {
+            var clientOptions = new RestClientOptions(_emailConfig.Url)
+            {
+                Authenticator = new HttpBasicAuthenticator("api", _emailConfig.ApiKey)
+            };
+            var client = new RestClient(clientOptions);
+
+            var request = new RestRequest();
+            request.AddParameter("domain", "sandbox7af90acdce724ca2af99961789d13af7.mailgun.org", ParameterType.UrlSegment);
+            request.Resource = "{domain}/messages";
+            request.AddParameter("from", "mailgun@sandbox7af90acdce724ca2af99961789d13af7.mailgun.org");
+            request.AddParameter("to", "filipresceanu468@gmail.com");
+            request.AddParameter("subject", "Email Verification ");
+            request.AddParameter("text", body);
+            request.Method = Method.Post;
+
+            var response = await client.ExecuteAsync(request);
+            return response.IsSuccessful;
+
+
+        }
+
+
     }
 }

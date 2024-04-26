@@ -9,9 +9,10 @@ namespace WushuCompetition.Services.Interfaces
 
         Task<IEnumerable<ParticipantDto>> GetParticipantsInCompetitionId(Guid competitionId);
 
-        Task<IEnumerable<Participant>> GetParticipantsDataInCompetitionId(Guid competiton);
+        Task<IEnumerable<Participant>> GetParticipantsDataInCompetitionId(Guid competition);
 
-        Task<IEnumerable<Participant>> GetParticipantsRandomCategoyAndCompetition(Guid categoryId, Guid competitionId);
+        Task<IEnumerable<Participant>> GetParticipantsRandomCategoryAndCompetition(Guid categoryId, Guid competitionId);
+        Task<IEnumerable<Participant>> GetParticipantsWinnerRandomCategoryAndCompetition(Guid categoryId, Guid competitionId);
 
         IEnumerable<Participant> ShufflingParticipants(IEnumerable<Participant> participants);
         Task DeleteParticipant(Guid id);

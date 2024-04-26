@@ -1,4 +1,4 @@
-﻿ using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -10,9 +10,10 @@ namespace WushuCompetition.Extensions
     {
         public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration config)
         {
-            services.AddIdentityCore<IdentityUser>()
+            services.AddIdentityCore<IdentityUser>(options=>options.SignIn.RequireConfirmedAccount=true)
                 .AddRoles<IdentityRole>()
                 .AddRoleManager<RoleManager<IdentityRole>>()
+                .AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>(TokenOptions.DefaultProvider)
                 .AddEntityFrameworkStores<DataContext>();
 
 
@@ -28,19 +29,17 @@ namespace WushuCompetition.Extensions
                 ValidateLifetime = true,
             };
 
-            services.AddAuthentication(options=>
+            services.AddAuthentication(options =>
                 {
-                    options.DefaultAuthenticateScheme=JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer( options =>
+                .AddJwtBearer(options =>
                 {
                     options.SaveToken = true;
                     options.TokenValidationParameters = tokenValidationParams;
                 });
-
-
 
             services.AddAuthorization(options =>
             {

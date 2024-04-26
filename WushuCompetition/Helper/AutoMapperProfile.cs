@@ -19,6 +19,8 @@ namespace WushuCompetition.Helper
             CreateMap<AgeCategory,AgeCategoryDto>();
             CreateMap<RegisterDto, IdentityUser>();
             CreateMap<IdentityUser, RegisterDto>();
+            CreateMap<MatchDto,Match>();
+            CreateMap<Match, MatchDto>();
 
         }
     }

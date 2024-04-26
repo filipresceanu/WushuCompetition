@@ -4,17 +4,19 @@ using WushuCompetition.Services.Interfaces;
 
 namespace WushuCompetition.Services
 {
-    public class MatchService:IMatchService
+    public class MatchService : IMatchService
     {
         private readonly IParticipantService _participantService;
         private readonly IMatchRepository _matchRepository;
         private readonly ICategoryService _categoryService;
+        private readonly IRoundRepository _roundRepository;
 
-        public MatchService(IParticipantService participantService, IMatchRepository matchRepository, ICategoryService categoryService)
+        public MatchService(IParticipantService participantService, IMatchRepository matchRepository, ICategoryService categoryService, IRoundRepository roundRepository)
         {
             _participantService = participantService;
             _matchRepository = matchRepository;
             _categoryService = categoryService;
+            _roundRepository = roundRepository;
         }
 
         public async Task HandleParticipantsNumber(Guid competitionId)
@@ -22,7 +24,7 @@ namespace WushuCompetition.Services
             var categories = await _categoryService.GetCategoriesForCompetitionId(competitionId);
             foreach (var category in categories)
             {
-                var participants = await _participantService.GetParticipantsRandomCategoyAndCompetition(category.Id,competitionId);
+                var participants = await _participantService.GetParticipantsWinnerRandomCategoryAndCompetition(category.Id, competitionId);
                 if (participants.Count() % 2 != 0)
                 {
                     await AddOddParticipantsNumberInMatches(participants);
@@ -39,6 +41,15 @@ namespace WushuCompetition.Services
 
         }
 
+        private async Task AddRoundsInMatches()
+        {
+            var matches = await _matchRepository.GetNumberOfMatchesNoReferee();
+            foreach (var match in matches)
+            {
+                await AddTwoRoundInMatch(match.Id);
+            }
+        }
+
         ///<summary>
         /// in each step take first two participants and add these participants into a match
         /// remove these two participants from list
@@ -46,14 +57,16 @@ namespace WushuCompetition.Services
         private async Task AddParticipantsInMatches(IEnumerable<Participant> participants)
         {
             var participantsList = participants.ToList(); //create a copy of this list in order to remove elements for it
-            while(participantsList.Any())
+            while (participantsList.Any())
             {
                 var participantFirst = participantsList.First();
                 participantsList.Remove(participantFirst);
                 var participantSecond = participantsList.First();
-                participantsList.Remove(participantFirst);
-                await _matchRepository.AddParticipantsInMatch(participantFirst, participantSecond);
+                participantsList.Remove(participantSecond);
+                await _matchRepository.CreateMatch(participantFirst, participantSecond);
             }
+
+            await AddRoundsInMatches();
         }
 
         /// <summary>
@@ -75,5 +88,10 @@ namespace WushuCompetition.Services
 
         }
 
+        private async Task AddTwoRoundInMatch(Guid matchId)
+        {
+            await _roundRepository.CreateRoundsForMatches(matchId);
+            await _roundRepository.CreateRoundsForMatches(matchId);
+        }
     }
 }

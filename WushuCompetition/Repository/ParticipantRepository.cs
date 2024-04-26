@@ -23,10 +23,8 @@ namespace WushuCompetition.Repository
 
         public async Task AddParticipantsInCompetition( Participant participant)
         {
-            
             _dataContext.Participants.Add(participant);
             await SaveParticipant();
-
         }
 
         public async Task DeleteParticipants(Guid participantId)
@@ -36,7 +34,7 @@ namespace WushuCompetition.Repository
             await SaveParticipant();
         }
 
-        public   async Task<IEnumerable<Participant>> GetParticipanstShuffling()
+        public   async Task<IEnumerable<Participant>> GetParticipantsShuffling()
         {
             var participants=await _dataContext.Participants.OrderBy(elem=>Guid.NewGuid()).ToListAsync();
             return participants;
@@ -59,14 +57,19 @@ namespace WushuCompetition.Repository
         public async Task<IEnumerable<Participant>> GetParticipantsDataForCompetitionId(Guid competitionId)
         {
            
-            var participants=await _dataContext.Participants.Where(elem => elem.Category.Competition.Id == competitionId).ToListAsync();
+            var participants=await _dataContext.Participants.Where(elem => 
+                elem.Category.Competition.Id == competitionId).ToListAsync();
+
             return participants;
         }
 
         public async Task<IEnumerable<Participant>> GetParticipantsForCategoryAndCompetition(Guid categoryId, Guid competitionId)
         {
             try { 
-                var participants = await _dataContext.Participants.Where(participant=>participant.Category.Id==categoryId && participant.Category.Competition.Id==competitionId).ToListAsync();
+                var participants = await _dataContext.Participants.Where(participant=>
+                    participant.Category.Id==categoryId &&
+                    participant.Category.Competition.Id==competitionId).ToListAsync();
+
                 return  participants;
             }
             catch (Exception ex)
@@ -78,11 +81,11 @@ namespace WushuCompetition.Repository
         public async Task<IEnumerable<ParticipantDto>> GetParticipantsForCompetitionId(Guid competitionId)
         {
           
-            var participants =  _dataContext.Participants.Where(elem => elem.Category.Competition.Id == competitionId)
+            var participants =  _dataContext.Participants.Where(elem => 
+                    elem.Category.Competition.Id == competitionId)
                 .ProjectTo<ParticipantDto>(_mapper.ConfigurationProvider).ToListAsync();
                 
             return await participants;
-            
         }
 
         public async Task SaveParticipant()
@@ -94,7 +97,10 @@ namespace WushuCompetition.Repository
         {
             try
             {
-                var participants = await _dataContext.Participants.Where(participant => participant.Category.Id == categoryId && participant.Category.Competition.Id == competitionId).ToListAsync();
+                var participants = await _dataContext.Participants.Where(participant => 
+                    participant.Category.Id == categoryId &&
+                    participant.Category.Competition.Id == competitionId).ToListAsync();
+
                 return participants.Count();
             }
             catch (Exception ex)
@@ -105,9 +111,29 @@ namespace WushuCompetition.Repository
 
         public async Task<ParticipantDto>GetParticipantDto(Guid participantId)
         {
-            var participants=await _dataContext.Participants.Where(element=>element.Id == participantId).ProjectTo<ParticipantDto>(_mapper.ConfigurationProvider).SingleOrDefaultAsync();
+            var participants=await _dataContext.Participants.Where(element=>
+                element.Id == participantId)
+                .ProjectTo<ParticipantDto>(_mapper.ConfigurationProvider).SingleOrDefaultAsync();
+
             return participants;
         }
-        
+
+        public async Task<IEnumerable<Participant>> GetParticipantsWinnersForCategoryAndCompetition(Guid categoryId, Guid competitionId)
+        {
+            try
+            {
+                var participants = await _dataContext.Participants.Where(participant =>
+                    participant.Category.Id == categoryId &&
+                    participant.Category.Competition.Id == competitionId &&
+                    participant.CompeteInNextMatch==true).ToListAsync();
+
+                return participants;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
     }
 }

@@ -57,20 +57,26 @@ namespace WushuCompetition.Services
                 && participantWeight > categoryGraterWeight && participantWeight <= categoryLessWeight)
             {
                 return true;
-
             }
 
             return false;
         }
 
-        public async Task<IEnumerable<Participant>> GetParticipantsDataInCompetitionId(Guid competiton)
+        public async Task<IEnumerable<Participant>> GetParticipantsDataInCompetitionId(Guid competition)
         {
-            return await _participantRepository.GetParticipantsDataForCompetitionId(competiton);
+            return await _participantRepository.GetParticipantsDataForCompetitionId(competition);
         }
 
-        public async Task<IEnumerable<Participant>> GetParticipantsRandomCategoyAndCompetition(Guid categoryId, Guid competitionId)
+        public async Task<IEnumerable<Participant>> GetParticipantsRandomCategoryAndCompetition(Guid categoryId, Guid competitionId)
         {
             var participants = await _participantRepository.GetParticipantsForCategoryAndCompetition(categoryId, competitionId);
+            var participantsRandom = ShufflingParticipants(participants);
+            return participantsRandom;
+        }
+
+        public async Task<IEnumerable<Participant>> GetParticipantsWinnerRandomCategoryAndCompetition(Guid categoryId, Guid competitionId)
+        {
+            var participants = await _participantRepository.GetParticipantsWinnersForCategoryAndCompetition(categoryId, competitionId);
             var participantsRandom = ShufflingParticipants(participants);
             return participantsRandom;
         }

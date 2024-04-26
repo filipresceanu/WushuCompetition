@@ -20,7 +20,7 @@ namespace WushuCompetition.Controllers
             _ageCategoryService = ageCategoryService;
         }
 
-        [Authorize]
+    
         [HttpPut("create-age-category")]
         public async Task<ActionResult> CreateAgeCategory(AgeCategoryDto ageCategory)
         {

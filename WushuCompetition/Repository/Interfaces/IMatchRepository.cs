@@ -1,9 +1,12 @@
-﻿using WushuCompetition.Models;
+﻿using WushuCompetition.Dto;
+using WushuCompetition.Models;
 
 namespace WushuCompetition.Repository.Interfaces
 {
     public interface IMatchRepository
     {
-        Task AddParticipantsInMatch(Participant participantFirst, Participant participantSecond);
+        Task CreateMatch(Participant participantFirst, Participant participantSecond);
+        Task<IEnumerable<MatchDto>> GetNumberOfMatchesNoReferee();
+        Task AddRefereeInMatches(Guid matchId, string refereeId);
     }
 }
