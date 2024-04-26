@@ -1,7 +1,13 @@
-﻿namespace WushuCompetition.Repository.Interfaces
+﻿using WushuCompetition.Dto;
+
+namespace WushuCompetition.Repository.Interfaces
 {
     public interface IRoundRepository
     {
-        Task CreateRoundsForMatches(Guid matchId);
+        Task CreateRoundsForMatches(RoundDto roundDto);
+        Task<IEnumerable<RoundDto>> GetRoundsForSpecificMatchNoWinner(Guid matchId);
+        Task<RoundDto> GetRoundByIdNoWinner(Guid roundId);
+        Task<RoundDto> AddPointsInRoundNoWinner(Guid roundId, int pointsFirstParticipants,
+            int pointsSecondParticipants);
     }
 }

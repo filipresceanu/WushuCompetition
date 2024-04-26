@@ -32,6 +32,7 @@ namespace WushuCompetition.Extensions
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountService,AccountService>();
             services.AddScoped<IRoundRepository, RoundRepository>();
+            services.AddScoped<IRoundService, RoundService>();
             services.Configure<JwtConfig>(config.GetSection("JwtConfig"));
             services.Configure<EmailConfig>(config.GetSection("EmailConfig"));
 

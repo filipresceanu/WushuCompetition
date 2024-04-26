@@ -12,8 +12,14 @@ namespace WushuCompetition.Models
 
         public Match Match { get; set; }
 
+        [ForeignKey("CompetitorFirstId")]
+        public Participant CompetitorFirst { get; set; }
+        public Guid CompetitorFirstId { get; set; }
         public int PointParticipantFirst { get; set; }
+        [ForeignKey("CompetitorSecondId")]
+        public Participant CompetitorSecond { get; set; }
         public int PointParticipantSecond { get; set; }
+        public Guid CompetitorSecondId { get; set; }
 
         [ForeignKey("ParticipantWinnerId")]
         public Participant ParticipantWinner { get; set; }

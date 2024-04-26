@@ -21,6 +21,10 @@ namespace WushuCompetition.Helper
             CreateMap<IdentityUser, RegisterDto>();
             CreateMap<MatchDto,Match>();
             CreateMap<Match, MatchDto>();
+            CreateMap<RoundDto, Round>();
+            CreateMap<Round, RoundDto>();
+
+
 
         }
     }

@@ -39,5 +39,19 @@ namespace WushuCompetition.Repository
             match.Referee=refereeId;
             await _dataContext.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<MatchDto>> GetMatchesForRefereeNoWinner(string refereeId)
+        {
+            var matches = await _dataContext.Matches.Where(elem => elem.Referee == refereeId &&
+                                           elem.ParticipantWinnerId == null).ToListAsync();
+            var matchesDto = matches.Select(match => _mapper.Map<MatchDto>(match));
+            return matchesDto;
+        }
+
+        public async Task<Match> GetMatchWithId(Guid matchId)
+        {
+            var match = await _dataContext.Matches.FindAsync(matchId);
+            return match;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using WushuCompetition.Models;
+﻿using WushuCompetition.Dto;
+using WushuCompetition.Models;
 using WushuCompetition.Repository.Interfaces;
 using WushuCompetition.Services.Interfaces;
 
@@ -9,14 +10,14 @@ namespace WushuCompetition.Services
         private readonly IParticipantService _participantService;
         private readonly IMatchRepository _matchRepository;
         private readonly ICategoryService _categoryService;
-        private readonly IRoundRepository _roundRepository;
+        private readonly IRoundService _roundService;
 
-        public MatchService(IParticipantService participantService, IMatchRepository matchRepository, ICategoryService categoryService, IRoundRepository roundRepository)
+        public MatchService(IParticipantService participantService, IMatchRepository matchRepository, ICategoryService categoryService, IRoundService roundService)
         {
             _participantService = participantService;
             _matchRepository = matchRepository;
             _categoryService = categoryService;
-            _roundRepository = roundRepository;
+            _roundService = roundService;
         }
 
         public async Task HandleParticipantsNumber(Guid competitionId)
@@ -90,8 +91,10 @@ namespace WushuCompetition.Services
 
         private async Task AddTwoRoundInMatch(Guid matchId)
         {
-            await _roundRepository.CreateRoundsForMatches(matchId);
-            await _roundRepository.CreateRoundsForMatches(matchId);
+            await _roundService.CreateRoundsForMatches(matchId);
+            await _roundService.CreateRoundsForMatches(matchId);
         }
+
+       
     }
 }

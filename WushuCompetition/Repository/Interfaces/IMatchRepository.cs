@@ -8,5 +8,7 @@ namespace WushuCompetition.Repository.Interfaces
         Task CreateMatch(Participant participantFirst, Participant participantSecond);
         Task<IEnumerable<MatchDto>> GetNumberOfMatchesNoReferee();
         Task AddRefereeInMatches(Guid matchId, string refereeId);
+        Task<IEnumerable<MatchDto>> GetMatchesForRefereeNoWinner(string refereeId);
+        Task<Match> GetMatchWithId(Guid matchId);
     }
 }

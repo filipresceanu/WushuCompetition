@@ -6,6 +6,6 @@
 
         public int PointsSecondParticipant { get; set; }
 
-        public Guid MatchId { get; set; }
+        public Guid RoundId { get; set; }
     }
 }
