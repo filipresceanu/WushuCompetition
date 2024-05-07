@@ -7,11 +7,8 @@ namespace WushuCompetition.Models
     {
         [Key]
         public Guid Id { get; set; }
-
         public Guid MatchId { get; set; }
-
         public Match Match { get; set; }
-
         [ForeignKey("CompetitorFirstId")]
         public Participant CompetitorFirst { get; set; }
         public Guid CompetitorFirstId { get; set; }

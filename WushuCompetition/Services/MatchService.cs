@@ -11,13 +11,16 @@ namespace WushuCompetition.Services
         private readonly IMatchRepository _matchRepository;
         private readonly ICategoryService _categoryService;
         private readonly IRoundService _roundService;
+        private readonly IRoundRepository _roundRepository;
 
-        public MatchService(IParticipantService participantService, IMatchRepository matchRepository, ICategoryService categoryService, IRoundService roundService)
+        public MatchService(IParticipantService participantService, IMatchRepository matchRepository,
+            ICategoryService categoryService, IRoundService roundService, IRoundRepository roundRepository)
         {
             _participantService = participantService;
             _matchRepository = matchRepository;
             _categoryService = categoryService;
             _roundService = roundService;
+            _roundRepository = roundRepository;
         }
 
         public async Task HandleParticipantsNumber(Guid competitionId)
@@ -40,6 +43,66 @@ namespace WushuCompetition.Services
                 }
             }
 
+        }
+
+        private async Task CalculateWinnerMatch(Guid matchId)
+        {
+            var rounds = await _roundRepository.GetRoundsWithMatchId(matchId);
+            if (rounds.Count() == 2)
+            {
+                await SetWinnerTwoRounds(rounds);
+            }
+
+            if (rounds.Count() == 3)
+            {
+
+            }
+
+
+
+        }
+
+        private async Task SetWinnerTwoRounds(IEnumerable<RoundDto> rounds)
+        {
+            var roundsWithWinners = rounds.Where(elem => elem.ParticipantWinnerId == null).ToList();
+
+            if (rounds.First().ParticipantWinnerId != rounds.Last().ParticipantWinnerId && roundsWithWinners.Count() == 2)
+            {
+                var roundDto = new RoundDto();
+                roundDto.CompetitorFirstId = rounds.First().CompetitorFirstId;
+                roundDto.CompetitorSecondId = rounds.First().CompetitorSecondId;
+                await _roundRepository.CreateRoundsForMatches(roundDto);
+            }
+            if (roundsWithWinners.Count() == 1)
+            {
+                await _matchRepository.SetWinnerInMatch(roundsWithWinners.First().MatchId, (Guid)roundsWithWinners.First().ParticipantWinnerId);
+            }
+            if (roundsWithWinners.Count() == 2)
+            {
+                await _matchRepository.SetWinnerInMatch(rounds.First().MatchId, (Guid)rounds.First().ParticipantWinnerId);
+            }
+        }
+
+        private async Task GetWinnerTreeRounds(IEnumerable<RoundDto> roundsDtos)
+        {
+            var roundsWithWinners = roundsDtos.Where(elem => elem.ParticipantWinnerId == null).ToList();
+            Dictionary<Guid, int> winnerFrequency = new Dictionary<Guid, int>();
+
+            if (roundsWithWinners.Count() == 3)
+            {
+                foreach (var roundDto in roundsDtos)
+                {
+                    if (!winnerFrequency.ContainsKey((Guid)roundDto.ParticipantWinnerId))
+                    {
+                        winnerFrequency.Add((Guid)roundDto.ParticipantWinnerId, 0);
+                    }
+                    winnerFrequency[(Guid)roundDto.ParticipantWinnerId]++;
+                }
+
+                var winner = winnerFrequency.MaxBy(entry => entry.Value);
+            }
+
+            if(!roundsWithWinners.Any())
         }
 
         private async Task AddRoundsInMatches()
@@ -95,6 +158,6 @@ namespace WushuCompetition.Services
             await _roundService.CreateRoundsForMatches(matchId);
         }
 
-       
+
     }
 }

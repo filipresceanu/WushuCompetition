@@ -42,12 +42,14 @@ namespace WushuCompetition.Controllers
 
         [HttpPost]
         [Route("AddPointsInRound")]
-        public async Task<ActionResult<RoundDto>> AddPointsInTask([FromBody] PointsDto pointsDto)
+        public async Task<ActionResult<RoundDto>> AddPointsInRound([FromBody] PointsDto pointsDto)
         {
             try
             {
-                var roundDto =
+                var round =
                     await _roundRepository.AddPointsInRoundNoWinner(pointsDto.RoundId,pointsDto.PointsFirstParticipant,pointsDto.PointsSecondParticipant);
+
+               var roundDto = await _roundRepository.CalculateWinner(round.Id);
 
                 return Ok(roundDto);
             }

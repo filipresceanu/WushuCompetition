@@ -11,6 +11,7 @@ namespace WushuCompetition.Dto
         public int PointParticipantSecond { get; set; }
         public Guid CompetitorSecondId { get; set; }
         public Guid CompetitorFirstId { get; set;}
+        public Guid? ParticipantWinnerId { get; set; }
 
     }
 }

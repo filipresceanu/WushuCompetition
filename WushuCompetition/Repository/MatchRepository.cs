@@ -53,5 +53,12 @@ namespace WushuCompetition.Repository
             var match = await _dataContext.Matches.FindAsync(matchId);
             return match;
         }
+
+        public async Task SetWinnerInMatch(Guid matchId, Guid winnerId)
+        {
+            var match = await GetMatchWithId(matchId);
+            match.ParticipantWinnerId=winnerId;
+            await _dataContext.SaveChangesAsync();
+        }
     }
 }
