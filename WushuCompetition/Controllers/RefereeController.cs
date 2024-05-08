@@ -16,11 +16,13 @@ namespace WushuCompetition.Controllers
     {
         private readonly IRoundService _roundService;
         private readonly IRoundRepository _roundRepository;
+        private readonly IMatchService _matchService;
 
-        public RefereeController(IRoundService roundService, IRoundRepository roundRepository)
+        public RefereeController(IRoundService roundService, IRoundRepository roundRepository, IMatchService matchService)
         {
             _roundService = roundService;
             _roundRepository = roundRepository;
+            _matchService = matchService;
         }
 
         [HttpGet]
@@ -49,7 +51,7 @@ namespace WushuCompetition.Controllers
                 var round =
                     await _roundRepository.AddPointsInRoundNoWinner(pointsDto.RoundId,pointsDto.PointsFirstParticipant,pointsDto.PointsSecondParticipant);
 
-               var roundDto = await _roundRepository.CalculateWinner(round.Id);
+               var roundDto = await _roundRepository.CalculateWinnerRound(round.Id);
 
                 return Ok(roundDto);
             }
@@ -58,6 +60,23 @@ namespace WushuCompetition.Controllers
                 return BadRequest("asdad");
             }
 
+        }
+
+        [AllowAnonymous]
+        [HttpPut]
+        [Route("CalculateWinner")]
+        public async Task<ActionResult> CalculateWinnerMatch(Guid matchId)
+        {
+            try
+            {
+                await _matchService.CalculateWinnerMatch(matchId);
+                return Ok("Success");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
     }

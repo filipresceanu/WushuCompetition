@@ -10,7 +10,7 @@ namespace WushuCompetition.Repository.Interfaces
         Task<Round> GetRoundByIdNoWinner(Guid roundId);
         Task<Round> AddPointsInRoundNoWinner(Guid roundId, int pointsFirstParticipants,
             int pointsSecondParticipants);
-        Task<RoundDto> CalculateWinner(Guid roundId);
+        Task<RoundDto> CalculateWinnerRound(Guid roundId);
         Task<IEnumerable<RoundDto>> GetRoundsWithMatchId(Guid matchId);
     }
 }

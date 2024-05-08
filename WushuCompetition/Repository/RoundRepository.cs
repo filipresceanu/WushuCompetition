@@ -63,7 +63,7 @@ namespace WushuCompetition.Repository
             return round;
         }
 
-        public async Task<RoundDto> CalculateWinner(Guid roundId)
+        public async Task<RoundDto> CalculateWinnerRound(Guid roundId)
         {
             try
             {
