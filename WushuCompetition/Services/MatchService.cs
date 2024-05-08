@@ -52,16 +52,16 @@ namespace WushuCompetition.Services
             var rounds = await _roundRepository.GetRoundsWithMatchId(matchId);
             if (rounds.Count() == 2)
             {
-                await SetWinnerTwoRounds(rounds);
+                await SetWinnerMatchTwoRounds(rounds);
             }
 
             if (rounds.Count() == 3)
             {
-                await SetWinnerTreeRounds(rounds);
+                await SetWinnerMatchTreeRounds(rounds);
             }
         }
 
-        private async Task SetWinnerTwoRounds(IEnumerable<RoundDto> rounds)
+        private async Task SetWinnerMatchTwoRounds(IEnumerable<RoundDto> rounds)
         {
             var roundsWithWinners = rounds.Where(elem => elem.ParticipantWinnerId != null).ToList();
 
@@ -86,30 +86,41 @@ namespace WushuCompetition.Services
             }
         }
 
-        private async Task SetWinnerTreeRounds(IEnumerable<RoundDto> roundsDtos)
+        private async Task SetWinnerMatchTreeRounds(IEnumerable<RoundDto> roundsDtos)
         {
+
+            var roundsNoWinners = roundsDtos.Where(elem => elem.ParticipantWinnerId == null).ToList();
             Dictionary<Guid, int> winnerFrequency = new Dictionary<Guid, int>();
 
-            foreach (var roundDto in roundsDtos)
+
+            if (roundsNoWinners.Count % 2 != 0)
             {
-                if (!winnerFrequency.ContainsKey((Guid)roundDto.ParticipantWinnerId))
+                var match = roundsNoWinners.ElementAt(0).MatchId;
+                var winnerLessWeight = await GetParticipantLowestWeight(match);
+                await _matchRepository.SetWinnerInMatch(match, winnerLessWeight);
+            }
+
+            if (roundsNoWinners.Count() == 2)
+            {
+                var roundWinner = roundsDtos.FirstOrDefault(elem => elem.ParticipantWinnerId != null);
+                await _matchRepository.SetWinnerInMatch(roundWinner.MatchId, (Guid)roundWinner.ParticipantWinnerId);
+            }
+
+            if (roundsNoWinners.Count() == 0)
+            {
+                foreach (var roundDto in roundsDtos)
                 {
-                    winnerFrequency.Add((Guid)roundDto.ParticipantWinnerId, 0);
+                    if (!winnerFrequency.ContainsKey((Guid)roundDto.ParticipantWinnerId))
+                    {
+                        winnerFrequency.Add((Guid)roundDto.ParticipantWinnerId, 0);
+                    }
+                    winnerFrequency[(Guid)roundDto.ParticipantWinnerId]++;
                 }
-                winnerFrequency[(Guid)roundDto.ParticipantWinnerId]++;
+
+                var winner = winnerFrequency.MaxBy(entry => entry.Value);
+                await _matchRepository.SetWinnerInMatch(roundsDtos.First().MatchId, winner.Key);
             }
-
-            var winner = winnerFrequency.MaxBy(entry => entry.Value);
-            var sortDictionary = from entry in winnerFrequency 
-                orderby winnerFrequency.Values select entry;
-
-            if (winner.Value == 0 || sortDictionary.Last().Value==sortDictionary.ElementAt(sortDictionary.Count()-1).Value)
-            {
-                var winnerId = await GetParticipantLowestWeight(roundsDtos.First().MatchId);
-                await _matchRepository.SetWinnerInMatch(roundsDtos.First().MatchId, winnerId);
-            }
-
-            await _matchRepository.SetWinnerInMatch(roundsDtos.First().MatchId, winner.Key);
+            
         }
 
         private async Task AddRoundsInMatches()
