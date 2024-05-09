@@ -18,7 +18,7 @@ namespace WushuCompetition.Repository
             _mapper = mapper;
         }
 
-        public async Task CreateRoundsForMatches(RoundDto roundDto)
+        public async Task CreateRoundForMatch(RoundDto roundDto)
         {
             try
             {

@@ -23,25 +23,25 @@ namespace WushuCompetition.Controllers
         }
 
         [HttpPut("add-event")]
-        public async Task<ActionResult> AddCompetition(CompetitionDto competition)
+        public async Task<ActionResult> AddCompetition(CompetitionDto competitionDto)
         {
-            var _competition = new Competition
+            var competition = new Competition
             {
-                Name = competition.Name,
-                Date = competition.Date,
+                Name = competitionDto.Name,
+                Date = competitionDto.Date,
                 Categories = new Collection<Category>()
 
             };
 
-            await _competitionService.CreateCompetition(_competition);
+            await _competitionService.CreateCompetition(competition);
             return Ok("Success");
         }
 
-        [HttpGet("get-competition")]
+        [HttpGet("get-competitions")]
         public async Task<ActionResult<IEnumerable<CompetitionDto>>> GetCompetitions()
         {
-            var _competition = await _competitionService.GetCompetitions();
-            return Ok(_competition);
+            var competitions = await _competitionService.GetCompetitions();
+            return Ok(competitions);
         }
 
 

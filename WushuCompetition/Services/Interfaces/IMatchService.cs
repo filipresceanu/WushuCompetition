@@ -1,9 +1,11 @@
-﻿namespace WushuCompetition.Services.Interfaces
+﻿using WushuCompetition.Dto;
+
+namespace WushuCompetition.Services.Interfaces
 {
     public interface IMatchService
     {
         Task HandleParticipantsNumber(Guid competitionId);
-        Task CalculateWinnerMatch(Guid matchId);
+        Task<MatchResultDto> CalculateWinnerMatch(Guid matchId);
 
 
     }

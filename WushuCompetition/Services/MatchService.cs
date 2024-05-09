@@ -31,84 +31,98 @@ namespace WushuCompetition.Services
             foreach (var category in categories)
             {
                 var participants = await _participantService.GetParticipantsWinnerRandomCategoryAndCompetition(category.Id, competitionId);
-                if (participants.Count() % 2 != 0)
+                var participantsList = _participantService.ShufflingParticipants(participants).ToList();
+                if (participantsList.Count() == 3)
                 {
-                    await AddOddParticipantsNumberInMatches(participants);
+                    await AddOnlyThreeParticipantsInMatches(participantsList);
+                    return;
                 }
-                if (participants.Count() % 2 == 0)
+                if (participantsList.Count() % 2 != 0)
                 {
-                    await AddParticipantsInMatches(participants);//Add participants in matches no restrictions
+                    await AddOddParticipantsNumberInMatches(participantsList);
+                    return;
                 }
-                if (participants.Count() == 3)
+                if (participantsList.Count() % 2 == 0)
                 {
-                    //Add participants in matches special case
+                    await AddParticipantsInMatches(participantsList);
+                    return;
                 }
             }
 
         }
 
-        public async Task CalculateWinnerMatch(Guid matchId)
+        public async Task<MatchResultDto> CalculateWinnerMatch(Guid matchId)
         {
             var rounds = await _roundRepository.GetRoundsWithMatchId(matchId);
             if (rounds.Count() == 2)
             {
-                await SetWinnerMatchTwoRounds(rounds);
+                var resultTwoRounds = await SetWinnerMatchTwoRounds(rounds);
+                return resultTwoRounds;
             }
 
-            if (rounds.Count() == 3)
-            {
-                await SetWinnerMatchTreeRounds(rounds);
-            }
+            var resultTreeRounds = await SetWinnerMatchTreeRounds(rounds);
+            return resultTreeRounds;
         }
 
-        private async Task SetWinnerMatchTwoRounds(IEnumerable<RoundDto> rounds)
+        private async Task<MatchResultDto> SetWinnerMatchTwoRounds(IEnumerable<RoundDto> rounds)
         {
             var roundsWithWinners = rounds.Where(elem => elem.ParticipantWinnerId != null).ToList();
+            var winnerFrequency = new Dictionary<Guid, int>();
 
-            if ((rounds.First().ParticipantWinnerId != rounds.Last().ParticipantWinnerId
-                 && roundsWithWinners.Count() == 2) || roundsWithWinners.Count() == 0)
+            var roundDto = new RoundDto();
+            roundDto.CompetitorFirstId = rounds.First().CompetitorFirstId;
+            roundDto.CompetitorSecondId = rounds.First().CompetitorSecondId;
+            roundDto.MatchId = rounds.First().MatchId;
+            if (!roundsWithWinners.Any())
             {
-                var roundDto = new RoundDto();
-                roundDto.CompetitorFirstId = rounds.First().CompetitorFirstId;
-                roundDto.CompetitorSecondId = rounds.First().CompetitorSecondId;
-                roundDto.MatchId = rounds.First().MatchId;
-                await _roundRepository.CreateRoundsForMatches(roundDto);
+                await _roundRepository.CreateRoundForMatch(roundDto);
+
+                return new MatchResultDto()
+                {
+                    StatusDescriptionMatch = "A new round was created for these equals rounds",
+                    MatchStatus = false
+                };
             }
-            if (roundsWithWinners.Count() == 1)
+            foreach (var round in roundsWithWinners)
             {
-                await _matchRepository.SetWinnerInMatch(roundsWithWinners.First().MatchId,
-                    (Guid)roundsWithWinners.First().ParticipantWinnerId);
+                if (!winnerFrequency.ContainsKey((Guid)round.ParticipantWinnerId))
+                {
+                    winnerFrequency.Add((Guid)round.ParticipantWinnerId, 0);
+                }
+                winnerFrequency[(Guid)round.ParticipantWinnerId]++;
             }
-            if (roundsWithWinners.Count() == 2)
+            var winnerMatch = winnerFrequency.MaxBy(entry => entry.Value);
+
+            if (winnerMatch.Value == 1 && roundsWithWinners.Count() == 2)
             {
-                await _matchRepository.SetWinnerInMatch(rounds.First().MatchId,
-                    (Guid)rounds.First().ParticipantWinnerId);
+                
+                await _roundRepository.CreateRoundForMatch(roundDto);
+
+                return new MatchResultDto()
+                {
+                    StatusDescriptionMatch = "A new round was created for these equals rounds",
+                    MatchStatus = false
+                };
             }
+
+            var participant = await _participantRepository.GetParticipant(winnerMatch.Key);
+            await _matchRepository.SetWinnerInMatch(rounds.First().MatchId, winnerMatch.Key);
+            return new MatchResultDto()
+            {
+                WinnerName = participant.Name,
+                MatchStatus = true,
+                StatusDescriptionMatch = "This match have a winner"
+            };
         }
 
-        private async Task SetWinnerMatchTreeRounds(IEnumerable<RoundDto> roundsDtos)
+        private async Task<MatchResultDto> SetWinnerMatchTreeRounds(IEnumerable<RoundDto> roundsDtos)
         {
+            var roundsWithWinners = roundsDtos.Where(elem => elem.ParticipantWinnerId != null).ToList();
+            var winnerFrequency = new Dictionary<Guid, int>();
 
-            var roundsNoWinners = roundsDtos.Where(elem => elem.ParticipantWinnerId == null).ToList();
-            Dictionary<Guid, int> winnerFrequency = new Dictionary<Guid, int>();
-
-
-            if (roundsNoWinners.Count % 2 != 0)
+            if (roundsWithWinners.Count() % 2 != 0)
             {
-                var match = roundsNoWinners.ElementAt(0).MatchId;
-                var winnerLessWeight = await GetParticipantLowestWeight(match);
-                await _matchRepository.SetWinnerInMatch(match, winnerLessWeight);
-            }
-
-            if (roundsNoWinners.Count() == 2)
-            {
-                var roundWinner = roundsDtos.FirstOrDefault(elem => elem.ParticipantWinnerId != null);
-                await _matchRepository.SetWinnerInMatch(roundWinner.MatchId, (Guid)roundWinner.ParticipantWinnerId);
-            }
-
-            if (roundsNoWinners.Count() == 0)
-            {
-                foreach (var roundDto in roundsDtos)
+                foreach (var roundDto in roundsWithWinners)
                 {
                     if (!winnerFrequency.ContainsKey((Guid)roundDto.ParticipantWinnerId))
                     {
@@ -116,11 +130,29 @@ namespace WushuCompetition.Services
                     }
                     winnerFrequency[(Guid)roundDto.ParticipantWinnerId]++;
                 }
+                var winnerMatch = winnerFrequency.MaxBy(entry => entry.Value);
+                var participant = await _participantRepository.GetParticipant(winnerMatch.Key);
+                await _matchRepository.SetWinnerInMatch(roundsDtos.First().MatchId, winnerMatch.Key);
 
-                var winner = winnerFrequency.MaxBy(entry => entry.Value);
-                await _matchRepository.SetWinnerInMatch(roundsDtos.First().MatchId, winner.Key);
+                return new MatchResultDto()
+                {
+                    WinnerName = participant.Name,
+                    MatchStatus = true,
+                    StatusDescriptionMatch = "This match have a winner"
+                };
             }
-            
+
+            var winnerLessWeight = await GetParticipantLowestWeight(roundsDtos.First().MatchId);
+            await _matchRepository.SetWinnerInMatch(roundsDtos.First().MatchId, winnerLessWeight);
+            var participantLessWeight = await _participantRepository.GetParticipant(winnerLessWeight);
+
+            return new MatchResultDto()
+            {
+                WinnerName = participantLessWeight.Name,
+                MatchStatus = true,
+                StatusDescriptionMatch = "This match have a winner"
+            };
+
         }
 
         private async Task AddRoundsInMatches()
@@ -136,7 +168,7 @@ namespace WushuCompetition.Services
         /// in each step take first two participants and add these participants into a match
         /// remove these two participants from list
         /// </summary>
-        private async Task AddParticipantsInMatches(IEnumerable<Participant> participants)
+        private async Task AddParticipantsInMatches(List<Participant> participants)
         {
             var participantsList = participants.ToList(); //create a copy of this list in order to remove elements for it
             while (participantsList.Any())
@@ -157,17 +189,32 @@ namespace WushuCompetition.Services
         /// Remove first participant form that list (all participants are in a random position)
         /// now we have an even number of participants 
         /// </summary>
-        private async Task AddOddParticipantsNumberInMatches(IEnumerable<Participant> participants)
+        private async Task AddOddParticipantsNumberInMatches(List<Participant> participants)
         {
-            var participantsList = _participantService.ShufflingParticipants(participants).ToList();
-            var luckyParticipant = participantsList.First();
-            participantsList.Remove(luckyParticipant);
-            await AddParticipantsInMatches(participantsList);
+            var luckyParticipant = participants.First();
+            participants.Remove(luckyParticipant);
+            await AddParticipantsInMatches(participants);
         }
 
-        private async Task AddOnlyThreeParticipantsInMatches(IEnumerable<Participant> participants)
+        /// <summary>
+        /// For categories with a limited number of participants
+        /// (3 in this case), a round-robin format guarantees that
+        /// all participants compete against each other in 3 separate matches.
+        /// Eg: first participant <=> second participant
+        ///     second participant <=> third participant
+        ///     third participant <=> first participant
+        /// </summary>
+        private async Task AddOnlyThreeParticipantsInMatches(List<Participant> participants)
         {
-
+            var participantsMatches = new List<Participant>();
+            for (int participantIndex = 0; participantIndex < participants.Count() - 1; participantIndex++)
+            {
+                participantsMatches.Add(participants[participantIndex]);
+                participantsMatches.Add(participants[participantIndex + 1]);
+            }
+            participantsMatches.Add(participants[0]);
+            participantsMatches.Add(participants[participants.Count() - 1]);
+            await AddParticipantsInMatches(participantsMatches);
         }
 
         private async Task AddTwoRoundInMatch(Guid matchId)

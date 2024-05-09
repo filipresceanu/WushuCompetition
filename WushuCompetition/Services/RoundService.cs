@@ -27,7 +27,7 @@ namespace WushuCompetition.Services
             roundDto.CompetitorFirstId = match.CompetitorFirstId;
             roundDto.CompetitorSecondId=match.CompetitorSecondId;
 
-            await _roundRepository.CreateRoundsForMatches(roundDto);
+            await _roundRepository.CreateRoundForMatch(roundDto);
         }
 
         public async Task<IEnumerable<RoundDto>> GetRoundsForSpecificRefereeNoWinner(string refereeId)

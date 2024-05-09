@@ -39,7 +39,7 @@ namespace WushuCompetition.Controllers
             {
                 return BadRequest("Unable to get rounds");
             }
-            
+
         }
 
         [HttpPost]
@@ -48,11 +48,10 @@ namespace WushuCompetition.Controllers
         {
             try
             {
-                var round =
-                    await _roundRepository.AddPointsInRoundNoWinner(pointsDto.RoundId,pointsDto.PointsFirstParticipant,pointsDto.PointsSecondParticipant);
+                var round = await _roundRepository.AddPointsInRoundNoWinner(pointsDto.RoundId, 
+                    pointsDto.PointsFirstParticipant, pointsDto.PointsSecondParticipant);
 
-               var roundDto = await _roundRepository.CalculateWinnerRound(round.Id);
-
+                var roundDto = await _roundRepository.CalculateWinnerRound(round.Id);
                 return Ok(roundDto);
             }
             catch (Exception e)
@@ -65,17 +64,16 @@ namespace WushuCompetition.Controllers
         [AllowAnonymous]
         [HttpPut]
         [Route("CalculateWinner")]
-        public async Task<ActionResult> CalculateWinnerMatch(Guid matchId)
+        public async Task<ActionResult<MatchResultDto>> CalculateWinnerMatch(Guid matchId)
         {
             try
             {
-                await _matchService.CalculateWinnerMatch(matchId);
-                return Ok("Success");
+                var result = await _matchService.CalculateWinnerMatch(matchId);
+                return Ok(result);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                return BadRequest("Something Bad");
             }
         }
 
