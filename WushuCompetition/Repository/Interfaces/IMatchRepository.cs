@@ -11,5 +11,6 @@ namespace WushuCompetition.Repository.Interfaces
         Task<IEnumerable<MatchDto>> GetMatchesForRefereeNoWinner(string refereeId);
         Task<Match> GetMatchWithId(Guid matchId);
         Task SetWinnerInMatch(Guid matchId, Guid winnerId);
+        Task<IEnumerable<Match>> GetMatchesNoWinner();
     }
 }

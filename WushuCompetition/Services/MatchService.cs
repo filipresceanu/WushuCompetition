@@ -35,18 +35,16 @@ namespace WushuCompetition.Services
                 if (participantsList.Count() == 3)
                 {
                     await AddOnlyThreeParticipantsInMatches(participantsList);
-                    return;
                 }
                 if (participantsList.Count() % 2 != 0)
                 {
                     await AddOddParticipantsNumberInMatches(participantsList);
-                    return;
                 }
                 if (participantsList.Count() % 2 == 0)
                 {
                     await AddParticipantsInMatches(participantsList);
-                    return;
                 }
+
             }
 
         }
@@ -93,9 +91,9 @@ namespace WushuCompetition.Services
             }
             var winnerMatch = winnerFrequency.MaxBy(entry => entry.Value);
 
-            if (winnerMatch.Value == 1 && roundsWithWinners.Count() == 2)
+            if (winnerMatch.Value == 1 && roundsWithWinners.Count == 2)
             {
-                
+
                 await _roundRepository.CreateRoundForMatch(roundDto);
 
                 return new MatchResultDto()
@@ -107,6 +105,7 @@ namespace WushuCompetition.Services
 
             var participant = await _participantRepository.GetParticipant(winnerMatch.Key);
             await _matchRepository.SetWinnerInMatch(rounds.First().MatchId, winnerMatch.Key);
+            await _participantService.SetMatchLooser(rounds.First().MatchId, winnerMatch.Key);
             return new MatchResultDto()
             {
                 WinnerName = participant.Name,
@@ -133,7 +132,7 @@ namespace WushuCompetition.Services
                 var winnerMatch = winnerFrequency.MaxBy(entry => entry.Value);
                 var participant = await _participantRepository.GetParticipant(winnerMatch.Key);
                 await _matchRepository.SetWinnerInMatch(roundsDtos.First().MatchId, winnerMatch.Key);
-
+                await _participantService.SetMatchLooser(roundsDtos.First().MatchId, winnerMatch.Key);
                 return new MatchResultDto()
                 {
                     WinnerName = participant.Name,
@@ -142,10 +141,10 @@ namespace WushuCompetition.Services
                 };
             }
 
-            var winnerLessWeight = await GetParticipantLowestWeight(roundsDtos.First().MatchId);
+            var winnerLessWeight = await _participantService.GetParticipantLowestWeight(roundsDtos.First().MatchId);
             await _matchRepository.SetWinnerInMatch(roundsDtos.First().MatchId, winnerLessWeight);
             var participantLessWeight = await _participantRepository.GetParticipant(winnerLessWeight);
-
+            await _participantService.SetMatchLooser(roundsDtos.First().MatchId, winnerLessWeight);
             return new MatchResultDto()
             {
                 WinnerName = participantLessWeight.Name,
@@ -223,18 +222,6 @@ namespace WushuCompetition.Services
             await _roundService.CreateRoundsForMatches(matchId);
         }
 
-        private async Task<Guid> GetParticipantLowestWeight(Guid matchId)
-        {
-            var match = await _matchRepository.GetMatchWithId(matchId);
-            var firstParticipantCompetition = await _participantRepository.GetParticipantDto(match.CompetitorFirstId);
-            var secondParticipantCompetition = await _participantRepository.GetParticipantDto(match.CompetitorSecondId);
 
-            if (firstParticipantCompetition.CategoryWeight > secondParticipantCompetition.CategoryWeight)
-            {
-                return secondParticipantCompetition.Id;
-            }
-
-            return firstParticipantCompetition.Id;
-        }
     }
 }

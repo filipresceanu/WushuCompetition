@@ -18,10 +18,10 @@ namespace WushuCompetition.Repository.Interfaces
         Task DeleteParticipants(Guid participantId);
 
         Task<Participant> GetParticipant(Guid participantId);
-
+        Task UpdateParticipantCompeteInNextMatch(Guid participantId, bool status);
         Task<string> GetParticipantName(Guid participantId);
 
-        Task SaveParticipant();
+        Task Save();
 
         Task<int> GetParticipantNumberForCategoryAndCompetition(Guid categoryId, Guid competitionId);
 

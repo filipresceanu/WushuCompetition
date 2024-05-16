@@ -48,6 +48,12 @@ namespace WushuCompetition.Repository
             return matchesDto;
         }
 
+        public async Task<IEnumerable<Match>> GetMatchesNoWinner()
+        {
+            var matches = await _dataContext.Matches.Where(elem => elem.ParticipantWinnerId == null).ToListAsync();
+            return matches;
+        }
+
         public async Task<Match> GetMatchWithId(Guid matchId)
         {
             var match = await _dataContext.Matches.FindAsync(matchId);

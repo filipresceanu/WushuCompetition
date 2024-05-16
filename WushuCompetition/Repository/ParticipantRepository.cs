@@ -18,20 +18,19 @@ namespace WushuCompetition.Repository
         {
             _mapper = mapper;
             _dataContext = context;
-           
         }
 
         public async Task AddParticipantsInCompetition( Participant participant)
         {
             _dataContext.Participants.Add(participant);
-            await SaveParticipant();
+            await Save();
         }
 
         public async Task DeleteParticipants(Guid participantId)
         {
             var participant=await GetParticipant(participantId);
             _dataContext.Participants.Remove(participant);
-            await SaveParticipant();
+            await Save();
         }
 
         public   async Task<IEnumerable<Participant>> GetParticipantsShuffling()
@@ -88,7 +87,7 @@ namespace WushuCompetition.Repository
             return await participants;
         }
 
-        public async Task SaveParticipant()
+        public async Task Save()
         {
             await _dataContext.SaveChangesAsync();
         }
@@ -135,5 +134,11 @@ namespace WushuCompetition.Repository
             }
         }
 
+        public async Task UpdateParticipantCompeteInNextMatch(Guid participantId,bool status)
+        {
+            var participant = await _dataContext.Participants.FindAsync(participantId);
+            participant.CompeteInNextMatch=status;
+            await Save();
+        }
     }
 }

@@ -37,12 +37,10 @@ namespace WushuCompetition.Controllers
             }
         }
 
-        [Authorize]
         [HttpGet("get-all-age-categories")]
         public async Task<ActionResult<IEnumerable<AgeCategoryDto>>> GetAgeCategories()
         {
             
-            var user = User.Identity.Name;
             try
             {
                 var ageCategories = await _ageCategoryService.GetAgeCategories();

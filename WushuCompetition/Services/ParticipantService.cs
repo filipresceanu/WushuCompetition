@@ -11,17 +11,18 @@ namespace WushuCompetition.Services
     {
         private readonly IParticipantRepository _participantRepository;
         private readonly ICategoryRepository _categoryRepository;
-        private readonly ICompetitionRepository _eventRepository;
         private readonly IAgeCategoryRepository _ageCategoryRepository;
+        private readonly IMatchRepository _matchRepository;
         private readonly IMapper _mapper;
 
-        public ParticipantService(IParticipantRepository participantRepository, ICategoryRepository categoryRepository, ICompetitionRepository eventRepository, IMapper mapper, IAgeCategoryRepository ageCategoryRepository)
+
+        public ParticipantService(IParticipantRepository participantRepository, ICategoryRepository categoryRepository, IMapper mapper, IAgeCategoryRepository ageCategoryRepository, IMatchRepository matchRepository)
         {
             _participantRepository = participantRepository;
             _categoryRepository = categoryRepository;
-            _eventRepository = eventRepository;
             _mapper = mapper;
             _ageCategoryRepository = ageCategoryRepository;
+            _matchRepository = matchRepository;
         }
 
         public async Task<string> AddParticipantsInCompetition(Guid competitionId,
@@ -96,5 +97,54 @@ namespace WushuCompetition.Services
         {
             await _participantRepository.DeleteParticipants(id);
         }
+
+        public async Task<IEnumerable<Participant>> GetParticipantsWhoDidNotCompete(Guid categoryId, Guid competitionId)
+        {
+            var matches = await _matchRepository.GetMatchesNoWinner();
+            var participants =
+                await _participantRepository.GetParticipantsForCategoryAndCompetition(categoryId, competitionId);
+
+            var participantsDidnCompete = new List<Participant>();
+
+            foreach (var match in matches)
+            {
+                foreach (var participant in participants)
+                {
+                    if (match.CompetitorFirstId!=participant.Id || match.CompetitorSecondId!=participant.Id)
+                    {
+                        participantsDidnCompete.Add(participant);
+                    }
+                }
+            }
+
+            return participantsDidnCompete;
+        }
+
+        public async Task SetMatchLooser(Guid matchId, Guid winnerId)
+        {
+            var match = await _matchRepository.GetMatchWithId(matchId);
+            var participantLoserId= match.CompetitorFirstId;
+            if (match.CompetitorSecondId != winnerId)
+            {
+                participantLoserId = match.CompetitorSecondId;
+            }
+
+            await _participantRepository.UpdateParticipantCompeteInNextMatch(participantLoserId, false);
+        }
+
+        public async Task<Guid> GetParticipantLowestWeight(Guid matchId)
+        {
+            var match = await _matchRepository.GetMatchWithId(matchId);
+            var firstParticipantCompetition = await _participantRepository.GetParticipantDto(match.CompetitorFirstId);
+            var secondParticipantCompetition = await _participantRepository.GetParticipantDto(match.CompetitorSecondId);
+
+            if (firstParticipantCompetition.CategoryWeight > secondParticipantCompetition.CategoryWeight)
+            {
+                return secondParticipantCompetition.Id;
+            }
+
+            return firstParticipantCompetition.Id;
+        }
+
     }
 }
